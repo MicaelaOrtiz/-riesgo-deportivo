@@ -63,7 +63,7 @@ class SyntheticDatasetGenerator(DatasetGenerator):
             - 2.4 * rest
             + rng.normal(0, 7, n)
         )
-        risk = np.where(score < 25, "Bajo", np.where(score < 42, "Medio", "Alto"))
+        risk = np.where(score < 22, "Bajo", np.where(score < 33, "Medio", "Alto"))
 
         df = pd.DataFrame(
             {
