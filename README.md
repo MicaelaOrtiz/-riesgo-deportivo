@@ -1,8 +1,65 @@
-# Predicción de riesgo deportivo con Red Neuronal
+# Predicción de Riesgo Deportivo — Red Neuronal
 
-Proyecto educativo completo: dataset, limpieza, entrenamiento, evaluación, red neuronal, API FastAPI e interfaz web con predicción en tiempo real.
+Proyecto educativo que entrena una red neuronal (MLP) para estimar el nivel
+de riesgo (**Bajo / Medio / Alto**) de un atleta a partir de sus hábitos de
+entrenamiento, sueño y recuperación. Incluye el pipeline completo: generación
+de datos, limpieza, entrenamiento, evaluación, y una API + interfaz web para
+predecir en tiempo real.
 
-> **Importante:** el modelo es experimental y educativo. No diagnostica lesiones ni reemplaza una evaluación médica/deportiva profesional. El dataset incluido se genera de forma sintética para demostrar el pipeline completo.
+> **Importante:** el modelo es experimental y educativo. El dataset es
+> **sintético** (generado por código, no son datos reales de atletas). No
+> reemplaza una evaluación médica o deportiva profesional.
+
+## Arquitectura del proyecto
+
+El proyecto está organizado en capas, cada una con una responsabilidad
+específica, aplicando patrones de diseño de software:
+
+```
+riesgo_deportivo_nn/
+├── train.py                 # Entry point: entrena el modelo
+├── app/
+│   ├── main.py               # Entry point: levanta la API web
+│   ├── static/                # CSS y JS de la interfaz
+│   └── templates/              # HTML de la interfaz
+├── src/riesgo_deportivo/
+│   ├── config.py                # Configuración centralizada (rutas, seeds)
+│   ├── domain/
+│   │   └── constants.py          # FEATURES, RiskLevel, rangos válidos
+│   ├── data/
+│   │   ├── generator.py           # Generación del dataset sintético
+│   │   ├── cleaner.py              # Limpieza de datos
+│   │   └── repository.py           # Guardado/carga de datasets (CSV)
+│   ├── models/
+│   │   ├── factory.py               # Construcción de modelos (MLP, RF, etc.)
+│   │   ├── trainer.py                # Split + entrenamiento
+│   │   ├── evaluator.py               # Métricas y reportes
+│   │   └── registry.py                # Carga del modelo entrenado
+│   ├── training/
+│   │   └── pipeline.py                 # Orquesta todo el entrenamiento
+│   └── api/
+│       ├── app.py                       # Arma la app FastAPI
+│       ├── schemas.py                    # Validación de request/response
+│       ├── dependencies.py                # Inyección de dependencias
+│       ├── routes/                         # health.py, predict.py, pages.py
+│       └── services/
+│           └── prediction_service.py        # Lógica de predicción
+├── tests/                    # Tests automáticos (pytest)
+├── data/                      # Datasets generados (raw y procesados)
+├── models/                     # Modelo entrenado (.joblib)
+└── reports/                     # Métricas de la última evaluación
+```
+
+## Patrones de diseño aplicados
+
+| Patrón | Dónde | Para qué |
+|---|---|---|
+| **Factory Method** | `models/factory.py` | Crear distintos tipos de modelo (MLP, Random Forest, Regresión Logística) sin acoplar el resto del código a uno solo. Agregar un modelo nuevo no requiere tocar el training ni la API. |
+| **Chain of Responsibility** | `data/cleaner.py` | La limpieza de datos es una cadena de pasos independientes (quitar duplicados → validar rangos → imputar faltantes), fáciles de agregar/quitar/reordenar. |
+| **Repository** | `data/repository.py` | Aísla cómo se guardan/leen los datasets (hoy CSV) del resto del pipeline. Si mañana se migra a una base de datos, solo cambia esta clase. |
+| **Singleton** | `models/registry.py` | El modelo entrenado (`.joblib`) se carga una sola vez en memoria y lo comparte toda la API, en vez de releerlo del disco en cada request. |
+| **Facade** | `training/pipeline.py`, `api/services/prediction_service.py` | Un único método (`TrainingPipeline.run()`, `PredictionService.predict()`) esconde por dentro varios pasos complejos coordinados. |
+| **Application Factory** | `api/app.py` | `create_app()` arma la aplicación FastAPI de forma configurable, en vez de un objeto global fijo — más fácil de testear. |
 
 ## 1. Instalar
 
@@ -16,115 +73,65 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Generar dataset, limpiar, entrenar y evaluar
+## 2. Entrenar el modelo
 
 ```bash
 python train.py
 ```
 
-Esto crea:
-- `data/sports_risk_raw.csv`: datos sintéticos sin limpiar.
-- `data/sports_risk_clean.csv`: datos limpios.
-- `models/risk_model.joblib`: red neuronal entrenada + escalador.
-- `reports/metrics.json`: métricas de evaluación.
-- `reports/confusion_matrix.csv`: matriz de confusión.
-- `reports/classification_report.txt`: reporte por clase.
+Esto ejecuta el pipeline completo (ver `src/riesgo_deportivo/training/pipeline.py`):
 
-## 3. Ejecutar API + web
+1. Genera el dataset sintético (`data/raw/sports_risk_raw.csv`)
+2. Lo limpia (`data/processed/sports_risk_clean.csv`)
+3. Separa train/test
+4. Entrena la red neuronal (MLP, 2 capas ocultas de 32 y 16 neuronas)
+5. Evalúa el modelo (`reports/metrics.json`, `classification_report.txt`, `confusion_matrix.csv`)
+6. Guarda el modelo entrenado (`models/risk_model.joblib`)
+
+## 3. Levantar la API + interfaz web
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Abrir en el navegador:
-`http://127.0.0.1:8000`
+Abrí `http://127.0.0.1:8000` en el navegador para cargar datos de un atleta
+y ver la predicción de riesgo. Endpoints disponibles:
 
-Documentación automática de API:
-`http://127.0.0.1:8000/docs`
+- `GET /` — interfaz web
+- `GET /health` — estado de la API y si el modelo está cargado
+- `POST /predict` — predicción (recibe un JSON con las 10 variables del atleta)
 
-## 4. API
+## 4. Correr los tests
 
-POST `/predict`
-
-Ejemplo JSON:
-
-```json
-{
-  "age": 25,
-  "weight_kg": 84,
-  "training_hours": 8,
-  "training_days": 5,
-  "sleep_hours": 6,
-  "rest_days": 1,
-  "intensity": 8,
-  "weekly_load": 850,
-  "pain": 3,
-  "competition_minutes": 120
-}
+```bash
+pytest -q
 ```
 
-Respuesta:
+Valida que el pipeline de datos, el entrenamiento y la API funcionen
+correctamente de punta a punta.
 
-```json
-{
-  "risk": "Medio",
-  "probability": 0.63,
-  "probabilities": {
-    "Bajo": 0.08,
-    "Medio": 0.63,
-    "Alto": 0.29
-  },
-  "message": "..."
-}
-```
+## Resultado actual del modelo
 
-## Arquitectura
+Con el dataset sintético balanceado (ver `domain/constants.py` y
+`data/generator.py`):
 
-```text
-Formulario web
-     ↓
-JavaScript fetch()
-     ↓
-FastAPI /predict
-     ↓
-Validación Pydantic
-     ↓
-Escalado de variables
-     ↓
-MLPClassifier (red neuronal)
-     ↓
-Probabilidades
-     ↓
-Resultado en pantalla
-```
+| Clase de riesgo | Precisión | Recall | F1-score |
+|---|---|---|---|
+| Bajo | 0.75 | 0.70 | 0.73 |
+| Medio | 0.52 | 0.53 | 0.52 |
+| Alto | 0.64 | 0.68 | 0.66 |
 
-## Variables
+**Accuracy general: ~63%**
 
-- `age`: edad
-- `weight_kg`: peso
-- `training_hours`: horas de entrenamiento semanales
-- `training_days`: días de entrenamiento semanales
-- `sleep_hours`: horas promedio de sueño
-- `rest_days`: días de descanso
-- `intensity`: intensidad percibida (1-10)
-- `weekly_load`: carga semanal aproximada
-- `pain`: molestia actual percibida (0-10)
-- `competition_minutes`: minutos de competición recientes
+Nota: la clase "Medio" es la más difícil de distinguir porque queda "en el
+medio" entre las otras dos categorías. Se priorizó balancear las 3 clases
+para que el modelo no ignore "Alto riesgo" (antes del balanceo, esa clase
+tenía muy pocos ejemplos y el F1 era de solo 0.32).
 
-La variable objetivo es `risk`: Bajo, Medio o Alto.
+## Notebook de Google Colab
 
-## Cómo defenderlo en una exposición
-
-1. Se parte de datos de deportistas.
-2. Se limpian valores faltantes, duplicados y valores fuera de rango.
-3. Se separan características (`X`) y etiqueta (`y`).
-4. Se dividen los datos en entrenamiento y prueba.
-5. Se estandarizan las variables.
-6. Se entrena una red neuronal MLP.
-7. Se evalúa con accuracy, precision, recall, F1 y matriz de confusión.
-8. FastAPI expone el modelo mediante `/predict`.
-9. La interfaz web manda los datos y muestra la predicción inmediatamente.
-
-### Nota sobre el dataset
-
-Para que el proyecto pueda ejecutarse sin depender de una descarga externa, `train.py` genera un dataset sintético reproducible. En un trabajo académico, una mejora importante sería reemplazarlo por datos reales/anónimos o un dataset público validado, manteniendo el mismo pipeline.
+Existe además una versión autocontenida en Jupyter Notebook
+(`riesgo_deportivo_colab.ipynb`, fuera de este repo) que reproduce el mismo
+pipeline en celdas independientes, pensada para correr en Google Colab y
+mostrar el entrenamiento de forma visual (gráfico de la pérdida actualizándose
+en vivo, época por época).
