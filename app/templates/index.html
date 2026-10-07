@@ -3,46 +3,99 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sports Risk AI</title>
+  <title>Chequeo de carga deportiva</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <main class="container">
-    <header>
-      <p class="eyebrow">RED NEURONAL · DEMO EDUCATIVA</p>
-      <h1>Sports Risk AI</h1>
-      <p class="subtitle">Estimación experimental de riesgo deportivo a partir de carga y recuperación.</p>
+  <div class="layout">
+    <header class="hero">
+      <h1>Chequeo de carga deportiva</h1>
+      <p class="lede">
+        Cargá los datos de tu semana de entrenamiento y mirá qué nivel de
+        riesgo estima el modelo, según cómo combinás carga, descanso y dolor.
+      </p>
     </header>
 
-    <section class="card">
-      <form id="riskForm">
-        <div class="grid">
-          <label>Edad<input name="age" type="number" value="25" min="14" max="80" required></label>
-          <label>Peso (kg)<input name="weight_kg" type="number" step="0.1" value="84" min="35" max="180" required></label>
-          <label>Horas de entrenamiento/semana<input name="training_hours" type="number" step="0.1" value="8" min="0" max="30" required></label>
-          <label>Días de entrenamiento/semana<input name="training_days" type="number" value="5" min="0" max="7" required></label>
-          <label>Horas de sueño promedio<input name="sleep_hours" type="number" step="0.1" value="6" min="0" max="14" required></label>
-          <label>Días de descanso/semana<input name="rest_days" type="number" value="1" min="0" max="7" required></label>
-          <label>Intensidad (1-10)<input name="intensity" type="number" value="8" min="1" max="10" required></label>
-          <label>Carga semanal<input name="weekly_load" type="number" value="850" min="0" max="3000" required></label>
-          <label>Molestia/dolor percibido (0-10)<input name="pain" type="number" value="3" min="0" max="10" required></label>
-          <label>Minutos de competición recientes<input name="competition_minutes" type="number" value="120" min="0" max="500" required></label>
-        </div>
-        <button type="submit">Analizar riesgo</button>
-      </form>
-    </section>
+    <div class="board">
+      <section class="panel form-panel">
+        <form id="riskForm">
 
-    <section id="result" class="result hidden">
-      <div class="result-main">
-        <span>RIESGO ESTIMADO</span>
-        <strong id="risk">—</strong>
-        <b id="probability">—</b>
-      </div>
-      <p id="message"></p>
-      <div id="bars"></div>
-      <small>Resultado experimental: no constituye diagnóstico ni predicción médica.</small>
-    </section>
-  </main>
+          <fieldset>
+            <legend>Perfil</legend>
+            <div class="row">
+              <label>Edad
+                <input name="age" type="number" value="25" min="14" max="80" required>
+              </label>
+              <label>Peso <span class="unit">kg</span>
+                <input name="weight_kg" type="number" step="0.1" value="84" min="35" max="180" required>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Entrenamiento de la semana</legend>
+            <div class="row">
+              <label>Horas totales
+                <input name="training_hours" type="number" step="0.1" value="8" min="0" max="30" required>
+              </label>
+              <label>Días entrenados
+                <input name="training_days" type="number" value="5" min="0" max="7" required>
+              </label>
+            </div>
+            <div class="row">
+              <label>Intensidad percibida <span class="unit">1–10</span>
+                <input name="intensity" type="number" value="8" min="1" max="10" required>
+              </label>
+              <label>Carga semanal
+                <input name="weekly_load" type="number" value="850" min="0" max="3000" required>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Recuperación</legend>
+            <div class="row">
+              <label>Horas de sueño
+                <input name="sleep_hours" type="number" step="0.1" value="6" min="0" max="14" required>
+              </label>
+              <label>Días de descanso
+                <input name="rest_days" type="number" value="1" min="0" max="7" required>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Señales de alerta</legend>
+            <div class="row">
+              <label>Dolor percibido <span class="unit">0–10</span>
+                <input name="pain" type="number" value="3" min="0" max="10" required>
+              </label>
+              <label>Minutos en competencia
+                <input name="competition_minutes" type="number" value="120" min="0" max="500" required>
+              </label>
+            </div>
+          </fieldset>
+
+          <button type="submit">Calcular riesgo</button>
+        </form>
+      </section>
+
+      <section id="result" class="panel result-panel hidden">
+        <p class="result-label">Riesgo estimado</p>
+        <p class="result-value">
+          <strong id="risk">—</strong>
+          <b id="probability"></b>
+        </p>
+        <p id="message" class="result-message"></p>
+        <div id="bars" class="bars"></div>
+        <p class="disclaimer">Resultado experimental: no reemplaza una evaluación deportiva o médica profesional.</p>
+      </section>
+    </div>
+  </div>
+
   <script src="/static/app.js"></script>
 </body>
 </html>
