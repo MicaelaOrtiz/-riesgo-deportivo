@@ -3,98 +3,127 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chequeo de carga deportiva</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Sports Risk AI</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="layout">
-    <header class="hero">
-      <h1>Chequeo de carga deportiva</h1>
-      <p class="lede">
-        Cargá los datos de tu semana de entrenamiento y mirá qué nivel de
-        riesgo estima el modelo, según cómo combinás carga, descanso y dolor.
-      </p>
+  <main class="app">
+    <header class="top">
+      <div>
+        <h1>Sports Risk <span class="ai">AI</span></h1>
+        <p class="subtitle">Predicción de riesgo de lesión en deportistas</p>
+      </div>
+      <svg class="ico top-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></svg>
     </header>
 
     <div class="board">
-      <section class="panel form-panel">
-        <form id="riskForm">
-
-          <fieldset>
-            <legend>Perfil</legend>
-            <div class="row">
-              <label>Edad
-                <input name="age" type="number" value="25" min="14" max="80" required>
-              </label>
-              <label>Peso <span class="unit">kg</span>
-                <input name="weight_kg" type="number" step="0.1" value="84" min="35" max="180" required>
-              </label>
+      <section class="card" aria-labelledby="t-datos">
+        <h2 id="t-datos">Datos del deportista</h2>
+        <form id="riskForm" novalidate>
+          <div class="fields">
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg>
+            <div class="field-body">
+              <label for="age">Edad <span class="unit">(años)</span></label>
+              <input id="age" name="age" type="number" inputmode="decimal" value="25" min="14" max="80" step="1" required>
             </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Entrenamiento de la semana</legend>
-            <div class="row">
-              <label>Horas totales
-                <input name="training_hours" type="number" step="0.1" value="8" min="0" max="30" required>
-              </label>
-              <label>Días entrenados
-                <input name="training_days" type="number" value="5" min="0" max="7" required>
-              </label>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18" /> <path d="m19 8 3 8a5 5 0 0 1-6 0zV7" /> <path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1" /> <path d="m5 8 3 8a5 5 0 0 1-6 0zV7" /> <path d="M7 21h10" /></svg>
+            <div class="field-body">
+              <label for="weight_kg">Peso <span class="unit">(kg)</span></label>
+              <input id="weight_kg" name="weight_kg" type="number" inputmode="decimal" value="84" min="35" max="180" step="0.1" required>
             </div>
-            <div class="row">
-              <label>Intensidad percibida <span class="unit">1–10</span>
-                <input name="intensity" type="number" value="8" min="1" max="10" required>
-              </label>
-              <label>Carga semanal
-                <input name="weekly_load" type="number" value="850" min="0" max="3000" required>
-              </label>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z" /> <path d="m2.5 21.5 1.4-1.4" /> <path d="m20.1 3.9 1.4-1.4" /> <path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z" /> <path d="m9.6 14.4 4.8-4.8" /></svg>
+            <div class="field-body">
+              <label for="training_hours">Horas entrenadas <span class="unit">(por semana)</span></label>
+              <input id="training_hours" name="training_hours" type="number" inputmode="decimal" value="9" min="0" max="30" step="0.1" required>
             </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Recuperación</legend>
-            <div class="row">
-              <label>Horas de sueño
-                <input name="sleep_hours" type="number" step="0.1" value="6" min="0" max="14" required>
-              </label>
-              <label>Días de descanso
-                <input name="rest_days" type="number" value="1" min="0" max="7" required>
-              </label>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /> <path d="M8 13h.01" /> <path d="M12 13h.01" /> <path d="M16 13h.01" /> <path d="M8 17h.01" /> <path d="M12 17h.01" /> <path d="M16 17h.01" /></svg>
+            <div class="field-body">
+              <label for="training_days">Días entrenados <span class="unit">(por semana)</span></label>
+              <input id="training_days" name="training_days" type="number" inputmode="decimal" value="5" min="0" max="7" step="1" required>
             </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Señales de alerta</legend>
-            <div class="row">
-              <label>Dolor percibido <span class="unit">0–10</span>
-                <input name="pain" type="number" value="3" min="0" max="10" required>
-              </label>
-              <label>Minutos en competencia
-                <input name="competition_minutes" type="number" value="120" min="0" max="500" required>
-              </label>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" /></svg>
+            <div class="field-body">
+              <label for="intensity">Intensidad <span class="unit">(1 a 10)</span></label>
+              <input id="intensity" name="intensity" type="number" inputmode="decimal" value="8" min="1" max="10" step="1" required>
             </div>
-          </fieldset>
-
-          <button type="submit">Calcular riesgo</button>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="M18 17V9" /> <path d="M13 17V5" /> <path d="M8 17v-3" /></svg>
+            <div class="field-body">
+              <label for="weekly_load">Carga semanal</label>
+              <input id="weekly_load" name="weekly_load" type="number" inputmode="decimal" value="900" min="0" max="3000" step="1" required>
+            </div>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16" /> <path d="M2 8h18a2 2 0 0 1 2 2v10" /> <path d="M2 17h20" /> <path d="M6 8v9" /></svg>
+            <div class="field-body">
+              <label for="sleep_hours">Horas de sueño <span class="unit">(promedio)</span></label>
+              <input id="sleep_hours" name="sleep_hours" type="number" inputmode="decimal" value="5.5" min="0" max="14" step="0.1" required>
+            </div>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /> <path d="m9 15 2 2 4-4" /></svg>
+            <div class="field-body">
+              <label for="rest_days">Días de descanso <span class="unit">(por semana)</span></label>
+              <input id="rest_days" name="rest_days" type="number" inputmode="decimal" value="1" min="0" max="7" step="1" required>
+            </div>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></svg>
+            <div class="field-body">
+              <label for="pain">Dolor actual <span class="unit">(0 a 10)</span></label>
+              <input id="pain" name="pain" type="number" inputmode="decimal" value="5" min="0" max="10" step="1" required>
+            </div>
+          </div>
+          <div class="field">
+            <svg class="ico field-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></svg>
+            <div class="field-body">
+              <label for="competition_minutes">Minutos de competencia</label>
+              <input id="competition_minutes" name="competition_minutes" type="number" inputmode="decimal" value="140" min="0" max="500" step="1" required>
+            </div>
+          </div>
+          </div>
+          <button type="submit" id="submitBtn">Predecir riesgo</button>
         </form>
       </section>
 
-      <section id="result" class="panel result-panel hidden">
-        <p class="result-label">Riesgo estimado</p>
-        <p class="result-value">
-          <strong id="risk">—</strong>
-          <b id="probability"></b>
-        </p>
-        <p id="message" class="result-message"></p>
-        <div id="bars" class="bars"></div>
-        <p class="disclaimer">Resultado experimental: no reemplaza una evaluación deportiva o médica profesional.</p>
+      <section class="card" aria-labelledby="t-result">
+        <h2 id="t-result">Resultado</h2>
+        <div id="result" aria-live="polite" data-level="none">
+          <div class="risk-box">
+            <p class="risk-label">Nivel de riesgo</p>
+            <p class="risk-value" id="risk">&mdash;</p>
+            <p class="risk-conf" id="confidence">Completá los datos y presioná «Predecir riesgo».</p>
+          </div>
+
+          <h3>Probabilidad</h3>
+          <div class="bars" id="bars">
+            <div class="bar-row" data-level="Bajo"><span class="bar-name">Bajo: <b>0%</b></span><div class="track"><div class="fill" style="width:0%"></div></div></div>
+            <div class="bar-row" data-level="Medio"><span class="bar-name">Medio: <b>0%</b></span><div class="track"><div class="fill" style="width:0%"></div></div></div>
+            <div class="bar-row" data-level="Alto"><span class="bar-name">Alto: <b>0%</b></span><div class="track"><div class="fill" style="width:0%"></div></div></div>
+          </div>
+
+          <div class="alert" id="alert" hidden>
+            <svg class="ico alert-ico ai-bajo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" /></svg>
+            <svg class="ico alert-ico ai-medio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></svg>
+            <svg class="ico alert-ico ai-alto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></svg>
+            <p id="message"></p>
+          </div>
+        </div>
       </section>
     </div>
-  </div>
+
+    <p class="disclaimer">Proyecto educativo con datos sintéticos. No reemplaza una evaluación deportiva o médica profesional.</p>
+  </main>
 
   <script src="/static/app.js"></script>
 </body>

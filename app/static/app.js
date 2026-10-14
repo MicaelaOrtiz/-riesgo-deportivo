@@ -1,24 +1,44 @@
 const form = document.getElementById("riskForm");
+const submitBtn = document.getElementById("submitBtn");
 const result = document.getElementById("result");
+const riskEl = document.getElementById("risk");
+const confEl = document.getElementById("confidence");
+const alertBox = document.getElementById("alert");
+const messageEl = document.getElementById("message");
 
-const RISK_COLORS = {
-  Bajo: "var(--risk-bajo)",
-  Medio: "var(--risk-medio)",
-  Alto: "var(--risk-alto)",
-};
+const pct = (p) => Math.round(p * 100);
+
+function showBars(probabilities) {
+  document.querySelectorAll(".bar-row").forEach((row) => {
+    const level = row.dataset.level;
+    const value = probabilities ? pct(probabilities[level] ?? 0) : 0;
+    row.querySelector("b").textContent = `${value}%`;
+    row.querySelector(".fill").style.width = `${value}%`;
+  });
+}
+
+function showError(text) {
+  result.dataset.level = "none";
+  riskEl.textContent = "Error";
+  confEl.textContent = "No se pudo calcular la predicción.";
+  showBars(null);
+  messageEl.textContent = text;
+  alertBox.hidden = false;
+}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const fd = new FormData(form);
-  const data = {};
-  for (const [k, v] of fd.entries()) data[k] = Number(v);
 
-  result.classList.remove("hidden");
-  result.style.setProperty("--accent", "var(--risk-medio)");
-  document.getElementById("risk").textContent = "Analizando…";
-  document.getElementById("probability").textContent = "";
-  document.getElementById("message").textContent = "";
-  document.getElementById("bars").innerHTML = "";
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  const data = {};
+  for (const [key, value] of new FormData(form).entries()) data[key] = Number(value);
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Calculando...";
 
   try {
     const response = await fetch("/predict", {
@@ -27,28 +47,20 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify(data),
     });
     const out = await response.json();
-    if (!response.ok || out.error) throw new Error(out.error || "Error de API");
-
-    const accent = RISK_COLORS[out.risk] || "var(--risk-medio)";
-    result.style.setProperty("--accent", accent);
-
-    document.getElementById("risk").textContent = out.risk;
-    document.getElementById("probability").textContent =
-      `${Math.round(out.probability * 100)}% de confianza`;
-    document.getElementById("message").textContent = out.message;
-
-    const bars = document.getElementById("bars");
-    for (const [name, prob] of Object.entries(out.probabilities)) {
-      const color = RISK_COLORS[name] || "var(--risk-medio)";
-      bars.innerHTML += `
-        <div>
-          <div class="bar-top"><span>${name}</span><span>${Math.round(prob * 100)}%</span></div>
-          <div class="track"><div class="fill" style="width:${prob * 100}%;background:${color}"></div></div>
-        </div>`;
+    if (!response.ok || out.error) {
+      throw new Error(out.error || "La API respondió con un error. ¿Entrenaste el modelo con python train.py?");
     }
+
+    result.dataset.level = out.risk;
+    riskEl.textContent = out.risk.toUpperCase();
+    confEl.textContent = `${pct(out.probability)}% de confianza del modelo`;
+    showBars(out.probabilities);
+    messageEl.textContent = out.message;
+    alertBox.hidden = false;
   } catch (err) {
-    result.style.setProperty("--accent", "var(--risk-alto)");
-    document.getElementById("risk").textContent = "Error";
-    document.getElementById("message").textContent = err.message;
+    showError(err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Predecir riesgo";
   }
 });
