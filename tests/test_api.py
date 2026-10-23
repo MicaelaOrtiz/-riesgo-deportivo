@@ -1,8 +1,5 @@
-"""
+""" 
 Tests de la API: /health, /predict y la página principal.
-
-Usa un modelo entrenado "de verdad" (rápido, con pocos datos) para no
-depender de que ya exista models/risk_model.joblib en disco.
 """
 
 import pytest
